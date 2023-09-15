@@ -5,6 +5,7 @@ import './RowPost.css'
 import axios from '../../axios'
 
 function RowPost(props) {
+    const[pop,setPop] = useState(false);
 
     const [movies, setMovies] = useState([])
     const [urlid, seturlId] = useState('')
@@ -20,21 +21,31 @@ function RowPost(props) {
 
     const opts= {
         height : '390',
-        width : '100%',
+        width : '800',
         playerVars:{
             autoplay:1,
         }
     }
 
-    const handleMovie = (id) =>{
-        axios.get(`movie/${id}/videos?api_key=${API_KEY}&language=en-US`).then(response=>{
-            if(response.data.results.length !==0){
-                seturlId(response.data.results[0])
-            }else{
-                console.log('array is empty')
+    const handleMovie = (id) => {
+        axios
+          .get(`movie/${id}/videos?api_key=${API_KEY}&language=en-US`)
+          .then((response) => {
+            if (response.data.results.length !== 0) {
+              seturlId(response.data.results[0]);
+              setPop(true);
+            } else {
+              window.alert('No videos found for this movie.');
             }
-        })
-        console.log(id)
+          })
+          .catch((error) => {
+            console.error('Error fetching movie videos:', error);
+            window.alert('Error fetching movie videos. Please try again later.');
+          });
+      };
+      
+    const closeVideo=()=>{
+    setPop(false)
     }
     return (
         <div className='row'>
@@ -45,7 +56,18 @@ function RowPost(props) {
                     
                 )}
             </div>
-            { urlid && < Youtube videoId={urlid.key} opts={opts} /> }
+            {/* { urlid && < Youtube videoId={urlid.key} opts={opts} /> } */}
+            { pop  && 
+            
+            <div className="video-popup">
+                <button className="close-button" onClick={closeVideo}> X</button>
+                <div className="video-content">
+
+                    < Youtube videoId={urlid.key} opts={opts} />
+                <h2 className='video-title'>{urlid.name}</h2>
+     
+            </div>
+          </div>}
 
         </div>
     )
